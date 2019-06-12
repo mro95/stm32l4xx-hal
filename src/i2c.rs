@@ -4,7 +4,7 @@ use cast::u8;
 use crate::stm32::{I2C1, I2C2};
 
 use crate::gpio::gpioa::{PA10, PA9};
-use crate::gpio::gpiob::{PB6, PB7, PB10, PB11};
+use crate::gpio::gpiob::{PB6, PB7, PB8, PB9, PB10, PB11};
 use crate::gpio::{AF4, Alternate, OpenDrain, Output};
 use crate::hal::blocking::i2c::{Write, WriteRead, Read};
 use crate::rcc::{APB1R1, Clocks};
@@ -39,6 +39,8 @@ unsafe impl SclPin<I2C1> for PA9<Alternate<AF4, Output<OpenDrain>>> {}
 unsafe impl SdaPin<I2C1> for PA10<Alternate<AF4, Output<OpenDrain>>> {}
 unsafe impl SclPin<I2C1> for PB6<Alternate<AF4, Output<OpenDrain>>> {}
 unsafe impl SdaPin<I2C1> for PB7<Alternate<AF4, Output<OpenDrain>>> {}
+unsafe impl SclPin<I2C1> for PB8<Alternate<AF4, Output<OpenDrain>>> {}
+unsafe impl SdaPin<I2C1> for PB9<Alternate<AF4, Output<OpenDrain>>> {}
 unsafe impl SclPin<I2C2> for PB10<Alternate<AF4, Output<OpenDrain>>> {}
 unsafe impl SdaPin<I2C2> for PB11<Alternate<AF4, Output<OpenDrain>>> {}
 
