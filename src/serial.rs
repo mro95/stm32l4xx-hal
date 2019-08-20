@@ -17,6 +17,7 @@ use void::Void;
 use crate::gpio::gpioa::{PA10, PA2, PA3, PA9};
 use crate::gpio::gpiod::{PD5, PD6};
 use crate::gpio::gpiob::{PB6, PB7};
+use crate::gpio::gpioc::{PC10, PC11};
 use crate::gpio::{AF7, Alternate, Input, Floating};
 use crate::rcc::{APB1R1, APB2, Clocks};
 use crate::time::Bps;
@@ -64,6 +65,10 @@ impl Pins<USART2> for (PA2<Alternate<AF7, Input<Floating>>>, PA3<Alternate<AF7, 
 }
 
 impl Pins<USART2> for (PD5<Alternate<AF7, Input<Floating>>>, PD6<Alternate<AF7, Input<Floating>>>) {
+    const REMAP: u8 = 0;
+}
+
+impl Pins<USART3> for (PC10<Alternate<AF7, Input<Floating>>>, PC11<Alternate<AF7, Input<Floating>>>) {
     const REMAP: u8 = 0;
 }
 
