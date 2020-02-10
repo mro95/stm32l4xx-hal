@@ -417,6 +417,7 @@ pub struct Tx<USART> {
 
 macro_rules! hal {
     ($(
+<<<<<<< HEAD
         $(#[$meta:meta])*
         $USARTX:ident: (
             $usartX:ident,
@@ -427,8 +428,13 @@ macro_rules! hal {
             tx: ($dmacst:ident, $tx_chan:path),
             rx: ($dmacsr:ident, $rx_chan:path)
         ),
+=======
+        $( #[ $( $attr:tt )+ ] )*
+        $USARTX:ident: ($usartX:ident, $APB:ident, $usartXen:ident, $usartXrst:ident, $pclkX:ident, tx: ($dmacst:ident, $tx_chan:path), rx: ($dmacsr:ident, $rx_chan:path)),
+>>>>>>> 36babb03ce3e29cb1b8df05194ece4239cb482a7
     )+) => {
         $(
+            $( #[ $( $attr )+ ] )*
             impl<PINS> Serial<$USARTX, PINS> {
                 /// Configures the serial interface and creates the interface
                 /// struct.
@@ -564,6 +570,7 @@ macro_rules! hal {
                 }
             }
 
+<<<<<<< HEAD
             impl<PINS> serial::Read<u8> for Serial<$USARTX, PINS> {
                 type Error = Error;
 
@@ -575,6 +582,9 @@ macro_rules! hal {
                 }
             }
 
+=======
+            $( #[ $( $attr )+ ] )*
+>>>>>>> 36babb03ce3e29cb1b8df05194ece4239cb482a7
             impl serial::Read<u8> for Rx<$USARTX> {
                 type Error = Error;
 
@@ -608,6 +618,7 @@ macro_rules! hal {
                 }
             }
 
+<<<<<<< HEAD
             impl<PINS> serial::Write<u8> for Serial<$USARTX, PINS> {
                 type Error = Error;
 
@@ -626,6 +637,9 @@ macro_rules! hal {
                 }
             }
 
+=======
+            $( #[ $( $attr )+ ] )*
+>>>>>>> 36babb03ce3e29cb1b8df05194ece4239cb482a7
             impl serial::Write<u8> for Tx<$USARTX> {
                 // NOTE(Void) See section "29.7 USART interrupts"; the only possible errors during
                 // transmission are: clear to send (which is disabled in this case) errors and
@@ -661,6 +675,7 @@ macro_rules! hal {
                 }
             }
 
+            $( #[ $( $attr )+ ] )*
             impl Rx<$USARTX> {
                 pub fn circ_read<B, H>(
                     &self,
@@ -746,6 +761,12 @@ macro_rules! hal {
 hal! {
     USART1: (usart1, APB2, usart1en, usart1rst, pclk2, tx: (c4s, dma1::C4), rx: (c5s, dma1::C5)),
     USART2: (usart2, APB1R1, usart2en, usart2rst, pclk1, tx: (c7s, dma1::C7), rx: (c6s, dma1::C6)),
+    #[cfg(feature = "stm32l4x6")]
+    USART3: (usart3, APB1R1, usart3en, usart3rst, pclk1, tx: (c2s, dma1::C2), rx: (c3s, dma1::C3)),
+    #[cfg(feature = "stm32l4x6")]
+    UART4: (uart4, APB1R1, uart4en, uart4rst, pclk1, tx: (c3s, dma2::C3), rx: (c5s, dma2::C5)),
+    #[cfg(feature = "stm32l4x6")]
+    UART5: (uart5, APB1R1, uart5en, uart5rst, pclk1, tx: (c1s, dma2::C1), rx: (c2s, dma2::C2)),
 }
 
 // TODO USART3RST is missing atm in stm32l4x1 & stm32l4x2 crate
