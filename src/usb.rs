@@ -28,6 +28,7 @@ unsafe impl UsbPeripheral for Peripheral {
 
     fn enable() {
         let rcc = unsafe { (&*RCC::ptr()) };
+        let usb = unsafe { (&*USB::ptr()) };
 
         cortex_m::interrupt::free(|_| {
             // Enable USB peripheral
