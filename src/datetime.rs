@@ -85,7 +85,7 @@ pub struct Time {
     pub hours: u32,
     pub minutes: u32,
     pub seconds: u32,
-    pub daylight_savings: bool
+    pub daylight_savings: bool,
 }
 
 impl Time {
@@ -94,7 +94,7 @@ impl Time {
             hours: hours.0,
             minutes: minutes.0,
             seconds: seconds.0,
-            daylight_savings: daylight_savings
+            daylight_savings: daylight_savings,
         }
     }
 }
@@ -113,7 +113,7 @@ impl Date {
             day: day.0,
             date: date.0,
             month: month.0,
-            year: year.0
+            year: year.0,
         }
     }
 }

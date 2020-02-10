@@ -2,8 +2,8 @@
 
 use core::cmp;
 
-use cast::u32;
 use crate::stm32::{rcc, RCC};
+use cast::u32;
 
 use crate::flash::ACR;
 use crate::time::Hertz;
@@ -43,7 +43,6 @@ pub trait RccExt {
 }
 
 impl RccExt for RCC {
-
     fn constrain(self) -> Rcc {
         Rcc {
             ahb1: AHB1 { _0: () },
@@ -264,7 +263,7 @@ pub struct CFGR {
     pclk1: Option<u32>,
     pclk2: Option<u32>,
     sysclk: Option<u32>,
-    pllcfg: Option<PllConfig>
+    pllcfg: Option<PllConfig>,
 }
 
 impl CFGR {
@@ -278,21 +277,18 @@ impl CFGR {
     }
 
     /// Enable the 48Mh USB, RNG, SDMMC clock source. Not available on all stm32l4x6 series
-    pub fn hsi48(mut self, on: bool) -> Self
-    {
+    pub fn hsi48(mut self, on: bool) -> Self {
         self.hsi48 = on;
         self
     }
 
-    pub fn msi(mut self, range: MsiFreq) -> Self
-    {
+    pub fn msi(mut self, range: MsiFreq) -> Self {
         self.msi = Some(range);
         self
     }
 
     /// Sets LSI clock on (the default) or off
-    pub fn lsi(mut self, on: bool) -> Self
-    {
+    pub fn lsi(mut self, on: bool) -> Self {
         self.lsi = on;
         self
     }
@@ -336,7 +332,6 @@ impl CFGR {
 
     /// Freezes the clock configuration, making it effective
     pub fn freeze(&self, acr: &mut ACR) -> Clocks {
-
         let pllconf = if self.pllcfg.is_none() {
             let plln = (2 * self.sysclk.unwrap_or(HSI)) / HSI;
             let plln = cmp::min(cmp::max(plln, 2), 16);
@@ -348,11 +343,10 @@ impl CFGR {
                 let conf = PllConfig {
                     m: 0b0,
                     r: 0b0,
-                    n: plln as u8
+                    n: plln as u8,
                 };
                 Some(conf)
             }
-
         } else {
             let conf = self.pllcfg.unwrap();
             Some(conf)
@@ -362,7 +356,8 @@ impl CFGR {
 
         assert!(sysclk <= 80_000_000);
 
-        let (hpre_bits, hpre_div) = self.hclk
+        let (hpre_bits, hpre_div) = self
+            .hclk
             .map(|hclk| match sysclk / hclk {
                 // From p 194 in RM0394
                 0 => unreachable!(),
@@ -382,7 +377,8 @@ impl CFGR {
 
         assert!(hclk <= sysclk);
 
-        let (ppre1_bits, ppre1) = self.pclk1
+        let (ppre1_bits, ppre1) = self
+            .pclk1
             .map(|pclk1| match hclk / pclk1 {
                 // From p 194 in RM0394
                 0 => unreachable!(),
@@ -390,7 +386,7 @@ impl CFGR {
                 2 => (0b100, 2),
                 3..=5 => (0b101, 4),
                 6..=11 => (0b110, 8),
-                _ => (0b111, 16)
+                _ => (0b111, 16),
             })
             .unwrap_or((0b000, 1));
 
@@ -398,7 +394,8 @@ impl CFGR {
 
         assert!(pclk1 <= sysclk);
 
-        let (ppre2_bits, ppre2) = self.pclk2
+        let (ppre2_bits, ppre2) = self
+            .pclk2
             .map(|pclk2| match hclk / pclk2 {
                 // From p 194 in RM0394
                 0 => unreachable!(),
@@ -406,7 +403,7 @@ impl CFGR {
                 2 => (0b100, 2),
                 3..=5 => (0b101, 4),
                 6..=11 => (0b110, 8),
-                _ => (0b111, 16)
+                _ => (0b111, 16),
             })
             .unwrap_or((0b000, 1));
 
@@ -439,13 +436,15 @@ impl CFGR {
             rcc.cr.write(|w| w.hsion().set_bit());
             while rcc.cr.read().hsirdy().bit_is_clear() {}
 
-            rcc.pllcfgr
-            .modify(|_, w| unsafe {
+            rcc.pllcfgr.modify(|_, w| unsafe {
                 w.pllsrc()
                     .bits(pllsrc_bits)
-                    .pllm().bits(pllconf.m)
-                    .pllr().bits(pllconf.r)
-                    .plln().bits(pllconf.n)
+                    .pllm()
+                    .bits(pllconf.m)
+                    .pllr()
+                    .bits(pllconf.r)
+                    .plln()
+                    .bits(pllconf.n)
             });
 
             rcc.cr.modify(|_, w| w.pllon().set_bit());
@@ -495,7 +494,16 @@ impl CFGR {
         }
 
         if let Some(msi) = self.msi {
-            unsafe { rcc.cr.modify(|_, w| w.msirange().bits(msi as u8).msirgsel().set_bit().msion().set_bit() )};
+            unsafe {
+                rcc.cr.modify(|_, w| {
+                    w.msirange()
+                        .bits(msi as u8)
+                        .msirgsel()
+                        .set_bit()
+                        .msion()
+                        .set_bit()
+                })
+            };
             // Wait until MSI is running
             while rcc.cr.read().msirdy().bit_is_clear() {}
         }
@@ -528,7 +536,6 @@ impl CFGR {
             sysclk: Hertz(sysclk),
         }
     }
-
 }
 
 #[derive(Clone, Copy)]
