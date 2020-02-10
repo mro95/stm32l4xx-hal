@@ -25,28 +25,28 @@ use crate::stm32::UART4;
 #[cfg(any(feature = "stm32l4x5", feature = "stm32l4x6",))]
 use crate::stm32::UART5;
 
-use crate::gpio::gpioa::{PA0, PA1, PA10, PA11, PA12, PA2, PA3, PA9};
+use crate::gpio::gpioa::{PA10, PA11, PA12, PA0, PA1, PA2, PA3, PA9};
 use crate::gpio::gpiob::{PB3, PB4, PB6, PB7};
 use crate::gpio::gpiod::{PD3, PD4, PD5, PD6};
 use crate::gpio::{Alternate, Floating, Input, AF7};
 
 #[cfg(any(feature = "stm32l4x3", feature = "stm32l4x5", feature = "stm32l4x6",))]
-use crate::gpio::gpioa::PA6;
+use crate::gpio::gpioa::{PA6};
 
 #[cfg(any(feature = "stm32l4x3", feature = "stm32l4x5", feature = "stm32l4x6",))]
 use crate::gpio::gpiob::{PB1, PB10, PB11, PB13, PB14};
 
 #[cfg(any(feature = "stm32l4x3", feature = "stm32l4x5", feature = "stm32l4x6",))]
-use crate::gpio::gpiod::{PD11, PD12, PD2};
+use crate::gpio::gpiod::{PD2, PD11, PD12};
 
 #[cfg(any(feature = "stm32l4x3", feature = "stm32l4x5", feature = "stm32l4x6",))]
-use crate::gpio::gpioc::{PC10, PC11, PC4, PC5};
+use crate::gpio::gpioc::{PC4, PC5, PC10, PC11};
 
 #[cfg(any(feature = "stm32l4x5", feature = "stm32l4x6",))]
-use crate::gpio::gpioa::PA15;
+use crate::gpio::gpioa::{PA15};
 
 #[cfg(any(feature = "stm32l4x5", feature = "stm32l4x6",))]
-use crate::gpio::gpiob::PB5;
+use crate::gpio::gpiob::{PB5};
 
 #[cfg(any(feature = "stm32l4x5", feature = "stm32l4x6",))]
 use crate::gpio::gpioc::PC12;
@@ -766,8 +766,8 @@ hal! {
 }
 
 impl<USART, PINS> fmt::Write for Serial<USART, PINS>
-where
-    Serial<USART, PINS>: crate::hal::serial::Write<u8>,
+    where
+        Serial<USART, PINS>: crate::hal::serial::Write<u8>,
 {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         let _ = s
@@ -780,8 +780,8 @@ where
 }
 
 impl<USART> fmt::Write for Tx<USART>
-where
-    Tx<USART>: crate::hal::serial::Write<u8>,
+    where
+        Tx<USART>: crate::hal::serial::Write<u8>,
 {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         let _ = s
