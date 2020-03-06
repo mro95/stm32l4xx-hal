@@ -3,9 +3,14 @@ use crate::gpio::{Analog, Floating, Input};
 use crate::rcc::AHB2;
 use core::marker::PhantomData;
 use embedded_hal::adc::{Channel, OneShot};
-use stm32l4::stm32l4x2::rcc::CCIPR;
-use stm32l4::stm32l4x2::ADC;
 
+#[cfg(feature = "stm32l4x2")]
+use stm32l4::stm32l4x2::{
+    rcc::CCIPR,
+    ADC
+};
+
+#[cfg(feature = "stm32l4x2")]
 pub struct Adc<ADC> {
     adc: ADC,
 }
@@ -48,6 +53,7 @@ impl Adc<crate::device::ADC> {
     }
 }
 
+#[cfg(feature = "stm32l4x2")]
 impl Channel<Adc<crate::device::ADC>> for PA0<Analog> {
     type ID = u8;
 
@@ -56,6 +62,7 @@ impl Channel<Adc<crate::device::ADC>> for PA0<Analog> {
     }
 }
 
+#[cfg(feature = "stm32l4x2")]
 impl Channel<Adc<crate::device::ADC>> for PA1<Analog> {
     type ID = u8;
 
