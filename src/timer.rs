@@ -2,8 +2,9 @@
 
 use crate::hal::timer::{CountDown, Periodic};
 use crate::stm32::{TIM15, TIM16, TIM2, TIM6, TIM7};
+#[cfg(any(feature = "stm32l4x5", feature = "stm32l4x6",))]
+use crate::stm32::{TIM17, TIM4, TIM5};
 use cast::{u16, u32};
-use nb;
 use void::Void;
 
 use crate::rcc::{Clocks, APB1R1, APB2};
@@ -106,6 +107,21 @@ macro_rules! hal {
                     }
                 }
 
+
+                /// Clears interrupt associated with `event`.
+                ///
+                /// If the interrupt is not cleared, it will immediately retrigger after
+                /// the ISR has finished.
+                pub fn clear_interrupt(&mut self, event: Event) {
+                    match event {
+                        Event::TimeOut => {
+                            // Clear interrupt flag
+                            self.tim.sr.write(|w| w.uif().clear_bit());
+                        }
+                    }
+                }
+
+
                 /// Stops listening for an `event`
                 pub fn unlisten(&mut self, event: Event) {
                     match event {
@@ -138,4 +154,11 @@ hal! {
     TIM7: (tim7, tim7en, tim7rst, APB1R1),
     TIM15: (tim15, tim15en, tim15rst, APB2),
     TIM16: (tim16, tim16en, tim16rst, APB2),
+}
+
+#[cfg(any(feature = "stm32l4x5", feature = "stm32l4x6",))]
+hal! {
+    TIM4: (tim4, tim4en, tim4rst, APB1R1),
+    TIM5: (tim5, tim5en, tim5rst, APB1R1),
+    TIM17: (tim17, tim17en, tim17rst, APB2),
 }

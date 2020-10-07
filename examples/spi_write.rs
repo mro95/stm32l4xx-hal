@@ -29,6 +29,7 @@ fn main() -> ! {
 
     let mut flash = p.FLASH.constrain();
     let mut rcc = p.RCC.constrain();
+    let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
 
     // TRY the other clock configuration
     // let clocks = rcc.cfgr.freeze(&mut flash.acr);
@@ -37,7 +38,7 @@ fn main() -> ! {
         .sysclk(80.mhz())
         .pclk1(80.mhz())
         .pclk2(80.mhz())
-        .freeze(&mut flash.acr);
+        .freeze(&mut flash.acr, &mut pwr);
 
     let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
     let mut gpiob = p.GPIOB.split(&mut rcc.ahb2);
@@ -58,7 +59,7 @@ fn main() -> ! {
     let mosi = gpioa.pa7.into_af5(&mut gpioa.moder, &mut gpioa.afrl);
 
     // nss.set_high();
-    dc.set_low();
+    dc.set_low().ok();
 
     let mut spi = Spi::spi1(
         p.SPI1,

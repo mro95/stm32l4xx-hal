@@ -24,11 +24,12 @@ fn main() -> ! {
 
     let mut flash = p.FLASH.constrain();
     let mut rcc = p.RCC.constrain();
+    let mut pwr = p.PWR.constrain(&mut rcc.apb1r1);
     // let mut gpioa = p.GPIOA.split(&mut rcc.ahb2);
     let mut gpiob = p.GPIOB.split(&mut rcc.ahb2);
 
     // clock configuration using the default settings (all clocks run at 8 MHz)
-    let _clocks = rcc.cfgr.freeze(&mut flash.acr);
+    let _clocks = rcc.cfgr.freeze(&mut flash.acr, &mut pwr);
     // TRY this alternate clock configuration (clocks run at nearly the maximum frequency)
     // let clocks = rcc.cfgr.sysclk(64.mhz()).pclk1(32.mhz()).freeze(&mut flash.acr);
 
@@ -61,9 +62,9 @@ fn main() -> ! {
         // try and pass c1, it will detect an error!
         let _touched_c2_again = tsc.read(&mut c2).unwrap();
         if touched < threshold {
-            led.set_high();
+            led.set_high().ok();
         } else {
-            led.set_low();
+            led.set_low().ok();
         }
     }
 }

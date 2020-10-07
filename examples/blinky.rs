@@ -33,9 +33,10 @@ fn main() -> ! {
 
     let mut flash = dp.FLASH.constrain(); // .constrain();
     let mut rcc = dp.RCC.constrain();
+    let mut pwr = dp.PWR.constrain(&mut rcc.apb1r1);
 
     // Try a different clock configuration
-    let clocks = rcc.cfgr.hclk(8.mhz()).freeze(&mut flash.acr);
+    let clocks = rcc.cfgr.hclk(8.mhz()).freeze(&mut flash.acr, &mut pwr);
     // let clocks = rcc.cfgr
     //     .sysclk(64.mhz())
     //     .pclk1(32.mhz())
@@ -53,10 +54,10 @@ fn main() -> ! {
     loop {
         // block!(timer.wait()).unwrap();
         timer.delay_ms(1000 as u32);
-        led.set_high();
+        led.set_high().ok();
         // block!(timer.wait()).unwrap();
         timer.delay_ms(1000 as u32);
-        led.set_low();
+        led.set_low().ok();
     }
 }
 

@@ -1,14 +1,10 @@
-use crate::gpio::gpioa::{PA0, PA1};
-use crate::gpio::{Analog, Floating, Input};
-use crate::rcc::AHB2;
-use core::marker::PhantomData;
-use embedded_hal::adc::{Channel, OneShot};
-
 #[cfg(feature = "stm32l4x2")]
-use stm32l4::stm32l4x2::{
-    rcc::CCIPR,
-    ADC
+use crate::gpio::{
+    gpioa::{PA0, PA1},
+    Analog,
 };
+use crate::rcc::AHB2;
+use embedded_hal::adc::{Channel, OneShot};
 
 #[cfg(feature = "stm32l4x2")]
 pub struct Adc<ADC> {

@@ -11,6 +11,7 @@ use crate::hal::delay::Delay;
 use crate::hal::prelude::*;
 use crate::hal::serial::{Config, Serial};
 use crate::hal::stm32;
+use hal::hal::blocking::rng::Read;
 
 macro_rules! uprint {
     ($serial:expr, $($arg:tt)*) => {
@@ -34,13 +35,14 @@ fn main() -> ! {
 
     let mut flash = device.FLASH.constrain();
     let mut rcc = device.RCC.constrain();
+    let mut pwr = device.PWR.constrain(&mut rcc.apb1r1);
 
     let clocks = rcc
         .cfgr
         .hsi48(true) // needed for RNG
         .sysclk(64.mhz())
         .pclk1(32.mhz())
-        .freeze(&mut flash.acr);
+        .freeze(&mut flash.acr, &mut pwr);
 
     // setup usart
     let mut gpioa = device.GPIOA.split(&mut rcc.ahb2);

@@ -3,14 +3,13 @@
 use crate::stm32::{I2C1, I2C2};
 use cast::u8;
 
-use crate::gpio::gpioa::{PA10, PA9};
-use crate::gpio::gpiob::{PB10, PB11, PB6, PB7, PB8, PB9};
 use crate::gpio::{Alternate, OpenDrain, Output, AF4};
 use crate::hal::blocking::i2c::{Read, Write, WriteRead};
 use crate::rcc::{Clocks, APB1R1};
 use crate::time::Hertz;
 
 /// I2C error
+#[non_exhaustive]
 #[derive(Debug)]
 pub enum Error {
     /// Bus error
@@ -23,25 +22,31 @@ pub enum Error {
     // Pec, // SMBUS mode only
     // Timeout, // SMBUS mode only
     // Alert, // SMBUS mode only
-    #[doc(hidden)]
-    _Extensible,
 }
 
-// FIXME these should be "closed" traits
-/// SCL pin -- DO NOT IMPLEMENT THIS TRAIT
-pub unsafe trait SclPin<I2C> {}
+#[doc(hidden)]
+mod private {
+    pub trait Sealed {}
+}
 
-/// SDA pin -- DO NOT IMPLEMENT THIS TRAIT
-pub unsafe trait SdaPin<I2C> {}
+/// SCL pin. This trait is sealed and cannot be implemented.
+pub trait SclPin<I2C>: private::Sealed {}
 
-unsafe impl SclPin<I2C1> for PA9<Alternate<AF4, Output<OpenDrain>>> {}
-unsafe impl SdaPin<I2C1> for PA10<Alternate<AF4, Output<OpenDrain>>> {}
-unsafe impl SclPin<I2C1> for PB6<Alternate<AF4, Output<OpenDrain>>> {}
-unsafe impl SdaPin<I2C1> for PB7<Alternate<AF4, Output<OpenDrain>>> {}
-unsafe impl SclPin<I2C1> for PB8<Alternate<AF4, Output<OpenDrain>>> {}
-unsafe impl SdaPin<I2C1> for PB9<Alternate<AF4, Output<OpenDrain>>> {}
-unsafe impl SclPin<I2C2> for PB10<Alternate<AF4, Output<OpenDrain>>> {}
-unsafe impl SdaPin<I2C2> for PB11<Alternate<AF4, Output<OpenDrain>>> {}
+/// SDA pin. This trait is sealed and cannot be implemented.
+pub trait SdaPin<I2C>: private::Sealed {}
+
+macro_rules! pins {
+    ($spi:ident, $af:ident, SCL: [$($scl:ident),*], SDA: [$($sda:ident),*]) => {
+        $(
+            impl private::Sealed for $scl<Alternate<$af, Output<OpenDrain>>> {}
+            impl SclPin<$spi> for $scl<Alternate<$af, Output<OpenDrain>>> {}
+        )*
+        $(
+            impl private::Sealed for $sda<Alternate<$af, Output<OpenDrain>>> {}
+            impl SdaPin<$spi> for $sda<Alternate<$af, Output<OpenDrain>>> {}
+        )*
+    }
+}
 
 /// I2C peripheral operating in master mode
 pub struct I2c<I2C, PINS> {
@@ -185,7 +190,7 @@ macro_rules! hal {
                     // START and prepare to send `bytes`
                     self.i2c.cr2.write(|w| {
                         w.sadd()
-                            .bits(addr as u16) // upto 9 bits for address
+                            .bits((addr as u16) << 1)
                             .rd_wrn()
                             .clear_bit()
                             .nbytes()
@@ -219,7 +224,7 @@ macro_rules! hal {
                     buffer: &mut [u8],) -> Result<(), Error> {
                     self.i2c.cr2.write(|w| {
                         w.sadd()
-                            .bits(addr as u16)
+                            .bits((addr as u16) << 1)
                             .rd_wrn()
                             .set_bit()
                             .nbytes()
@@ -260,7 +265,7 @@ macro_rules! hal {
                     // START and prepare to send `bytes`
                     self.i2c.cr2.write(|w| {
                         w.sadd()
-                            .bits(addr as u16)
+                            .bits((addr as u16) << 1)
                             .rd_wrn()
                             .clear_bit()
                             .nbytes()
@@ -286,7 +291,7 @@ macro_rules! hal {
                     // reSTART and prepare to receive bytes into `buffer`
                     self.i2c.cr2.write(|w| {
                         w.sadd()
-                            .bits(addr as u16)
+                            .bits((addr as u16) << 1)
                             .rd_wrn()
                             .set_bit()
                             .nbytes()
@@ -317,3 +322,21 @@ hal! {
     I2C1: (i2c1, i2c1en, i2c1rst),
     I2C2: (i2c2, i2c2en, i2c2rst),
 }
+
+use crate::gpio::gpioa::{PA10, PA9};
+use crate::gpio::gpiob::{PB10, PB11, PB6, PB7};
+
+pins!(I2C1, AF4,
+    SCL: [PA9, PB6],
+    SDA: [PA10, PB7]);
+
+pins!(I2C2, AF4, SCL: [PB10], SDA: [PB11]);
+
+#[cfg(any(feature = "stm32l4x1", feature = "stm32l4x6"))]
+use crate::gpio::gpiob::{PB13, PB14, PB8, PB9};
+
+#[cfg(any(feature = "stm32l4x1", feature = "stm32l4x6"))]
+pins!(I2C1, AF4, SCL: [PB8], SDA: [PB9]);
+
+#[cfg(any(feature = "stm32l4x1", feature = "stm32l4x6"))]
+pins!(I2C2, AF4, SCL: [PB13], SDA: [PB14]);
